@@ -34,7 +34,7 @@ var createBrowserStackTunnel = function(logger, config, emitter) {
       log.error('Can not establish the tunnel.\n%s', error.toString());
       deferred.reject(error);
     } else {
-      log.debug('Tunnel established.')
+      log.debug('Tunnel established.');
       deferred.resolve();
     }
   });
@@ -133,10 +133,17 @@ var BrowserStackBrowser = function(id, emitter, args, logger,
         };
 
         var waitForWorkerRunning = function() {
+          var retries = 0;
+
           client.getWorker(workerId, function(error, w) {
-            if (error) {
+            if (error && retries > 3) {
               log.error('Can not get worker %s status %s\n  %s', workerId, browserName, formatError(error));
               return emitter.emit('browser_process_failure', self);
+            } else if (error) {
+              retries++;
+              log.info('Retrying worker %s (%s/3) status %s\n  %s', workerId, retries, browserName, formatError(error));
+              setTimeout(waitForWorkerRunning, 1000);
+              return;
             }
 
             // TODO(vojta): show immediately in createClient callback once this gets fixed:
