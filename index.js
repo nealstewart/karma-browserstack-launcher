@@ -136,7 +136,7 @@ var BrowserStackBrowser = function(id, emitter, args, logger,
           var retries = 0;
 
           client.getWorker(workerId, function(error, w) {
-            if (error && retries > 3) {
+            if (error && retries > 2) {
               log.error('Can not get worker %s status %s\n  %s', workerId, browserName, formatError(error));
               return emitter.emit('browser_process_failure', self);
             } else if (error) {
